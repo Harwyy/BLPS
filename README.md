@@ -15,80 +15,599 @@
 Разработать набор curl-скриптов, либо набор запросов для REST клиента Insomnia для тестирования публичных интерфейсов разработанного программного модуля. Запросы Insomnia оформить в виде файла экспорта.
 Развернуть разработанное приложение на сервере helios.
 
-## BPMN 2.0 диаграмма
+## Endpoints
 
-## UML-диаграммы классов
-![Диаграмма классов](files/EntityDiagram.png)
+### 1. Получить топ-3 ресторана и топ-3 по каждому типу
 
-## Спецификация REST API
-### Управление заказами со стороны курьера.
-### Courier Controller ```/api/courier```
+Возвращает список из трёх лучших ресторанов в целом, а также топ-3 для каждого типа ресторана.
 
-**Получить активные заказы курьера** \
-**GET** ``/api/courier/active`` \
-**Заголовки:** ``X-Courier-Id``
+**Endpoint**
 
-**Отметить, что курьер забрал заказ** \
-**PUT** ```/api/courier/pickup``` \
-**Заголовки:** ``X-Courier-Id``
+`GET /api/public/restaurants`
 
-**Отметить, что заказ доставлен** \
-**PUT** ```/api/courier/deliver``` \
-**Заголовки:** ``X-Courier-Id``
+**Параметры запроса**
 
-### Оформление и проверка заказа покупателем.
-### Order Controller ```/api/order```
+| Параметр | Тип    | Обязательный | Описание                |
+|----------|--------|--------------|-------------------------|
+| city     | string | да           | Город для поиска        |
 
-**Проверить заказ (расчёт стоимости и времени)** \
-**POST** ```/api/order/check``` \
-**Тело запроса:** 
-```bash
+**Пример запроса**
+
+`GET /api/public/restaurants?city=Москва`
+
+
+**Ответ (200 OK)**
+
+```json
 {
-  "userId": 123,
-  "restaurantId": 123,
+  "overallTop3": [
+    {
+      "id": 1,
+      "name": "Ресторан №1",
+      "type": "ITALIAN",
+      "rating": 4.8,
+      "phone": "+7 123 456-78-90",
+      "city": "Москва",
+      "street": "Тверская",
+      "building": 10
+    },
+    ...
+  ],
+  "topByType": {
+    "ITALIAN": [
+      {
+        "id": 1,
+        "name": "Ресторан №1",
+        "type": "ITALIAN",
+        "rating": 4.8,
+        "phone": "+7 123 456-78-90",
+        "city": "Москва",
+        "street": "Тверская",
+        "building": 10
+      },
+      ...
+    ],
+    "JAPANESE": [...],
+    ...
+  }
+}
+```  
+
+### 2. Получить меню ресторана
+
+Возвращает список блюд (продуктов) для указанного ресторана.
+
+**Endpoint**
+
+`GET /api/public/restaurants/{restaurantId}/menu`
+
+**Параметры запроса**
+
+| Параметр       | Тип  | Описание                |
+|----------------|------|-------------------------|
+| restaurantId   | long | Идентификатор ресторана |
+
+**Пример запроса**
+
+`GET /api/public/restaurants/1000/menu`
+
+```json
+[
+  {
+    "id": 1001,
+    "name": "Пицца Маргарита",
+    "description": "Традиционная итальянская пицца с томатами и моцареллой",
+    "price": 550.00
+  },
+  {
+    "id": 1002,
+    "name": "Цезарь с курицей",
+    "description": "Салат с курицей, листьями романо, пармезаном и соусом Цезарь",
+    "price": 420.00
+  }
+]
+```
+
+### 3. Создать заказ
+
+Создаёт новый заказ в системе.
+
+**Endpoint**  
+
+`POST /api/orders`
+
+**Тело запроса**
+
+```json
+{
+  "userId": 1001,
+  "restaurantId": 500,
+  "address": {
+    "city": "Москва",
+    "street": "Тверская",
+    "building": 15,
+    "latitude": 55.7558,
+    "longitude": 37.6173,
+    "floor": "3",
+    "apartment": "45"
+  },
   "items": [
-    {"productId": 1, "quantity": 2},
-    {"productId": 3, "quantity": 1}
-  ]
+    {
+      "productId": 1001,
+      "quantity": 2
+    },
+    {
+      "productId": 1002,
+      "quantity": 1
+    }
+  ],
+  "commentToRestaurant": "Пожалуйста, добавьте соус",
+  "commentToCourier": "Позвоните за 5 минут",
+  "leaveAtDoor": true
 }
 ```
 
-**Подтвердить заказ (создать заказ)** \
-**POST** ```/api/order/confirm``` \
-**Тело запроса:** 
-```bash
+**Ответ**
+```json
 {
-  "userId": 123,
-  "restaurantId": 123,
+  "id": 10001,
+  "restaurant": {
+    "id": 500,
+    "name": "Итальянский дворик",
+    "type": "ITALIAN",
+    "rating": 4.7,
+    "phone": "+7 495 123-45-67",
+    "city": "Москва",
+    "street": "Тверская",
+    "building": 10
+  },
+  "courier": {
+    "id": 42,
+    "name": "Иван Петров",
+    "phone": "+7 916 111-22-33",
+    "city": "Москва",
+    "status": "ASSIGNED"
+  },
+  "address": {
+    "city": "Москва",
+    "street": "Тверская",
+    "building": 15,
+    "latitude": 55.7558,
+    "longitude": 37.6173,
+    "floor": "3",
+    "apartment": "45"
+  },
+  "status": "PENDING",
+  "paymentStatus": "PENDING",
+  "estimatedDeliveryTime": 45,
+  "commentToRestaurant": "Пожалуйста, добавьте соус",
+  "commentToCourier": "Позвоните за 5 минут",
+  "leaveAtDoor": true,
   "items": [
-    {"productId": 1, "quantity": 2},
-    {"productId": 3, "quantity": 1}
-  ]
+    {
+      "productId": 1001,
+      "productName": "Пицца Маргарита",
+      "quantity": 2,
+      "price": 550.00
+    },
+    {
+      "productId": 1002,
+      "productName": "Цезарь с курицей",
+      "quantity": 1,
+      "price": 420.00
+    }
+  ],
+  "totalAmount": 1520.00
 }
 ```
 
-**Получить информацию о заказе по ID** \
-**GET ** ```/api/order/info``` \
-**Заголовки:** ``X-Order-Id``
+### 4. Получить заказ по ID
 
-### Управление заказами со стороны ресторана.
-### Restaurant Controller ```/api/restaurant```
+Возвращает полную информацию о заказе.
 
-**Получить новые заказы** \
-**GET** ```/api/restaurant/active``` \
-**Заголовки:** ``X-Restaurant-Id``
+**Endpoint**
 
-**Подтвердить заказ** \
-**PUT** ```/api/restaurant/confirm``` \
-**Заголовки:** ``X-Restaurant-Id``
+`GET /api/orders/{id}`
 
-**Отклонить заказ** \
-**PUT** ```/api/restaurant/decline``` \
-**Заголовки:** ``X-Restaurant-Id``
+**Параметры запроса**
 
-**Отметить заказ как готовый** \
-**PUT** ```/api/restaurant/ready``` \
-**Заголовки:** ``X-Restaurant-Id``
+| Параметр | Тип  | Описание             |
+|----------|------|----------------------|
+| id       | long | Идентификатор заказа |
+
+**Пример запроса**
+
+`GET /api/orders/10001`
+
+```json
+{
+  "id": 10001,
+  "restaurant": {
+    "id": 500,
+    "name": "Итальянский дворик",
+    "type": "ITALIAN",
+    "rating": 4.7,
+    "phone": "+7 495 123-45-67",
+    "city": "Москва",
+    "street": "Тверская",
+    "building": 10
+  },
+  "courier": {
+    "id": 42,
+    "name": "Иван Петров",
+    "phone": "+7 916 111-22-33",
+    "city": "Москва",
+    "status": "ASSIGNED"
+  },
+  "address": {
+    "city": "Москва",
+    "street": "Тверская",
+    "building": 15,
+    "latitude": 55.7558,
+    "longitude": 37.6173,
+    "floor": "3",
+    "apartment": "45"
+  },
+  "status": "PENDING",
+  "paymentStatus": "PENDING",
+  "estimatedDeliveryTime": 45,
+  "commentToRestaurant": "Пожалуйста, добавьте соус",
+  "commentToCourier": "Позвоните за 5 минут",
+  "leaveAtDoor": true,
+  "items": [
+    {
+      "productId": 1001,
+      "productName": "Пицца Маргарита",
+      "quantity": 2,
+      "price": 550.00
+    },
+    {
+      "productId": 1002,
+      "productName": "Цезарь с курицей",
+      "quantity": 1,
+      "price": 420.00
+    }
+  ],
+  "totalAmount": 1520.00
+}
+```
+
+### 5. Получить ожидающие заказы (статус PAID)
+
+Возвращает список заказов, которые оплачены и ожидают подтверждения рестораном.
+
+**Endpoint**  
+`GET /api/restaurants/{restaurantId}/orders/pending`
+
+**Параметры запроса**
+
+| Параметр      | Тип  | Описание                     |
+|---------------|------|------------------------------|
+| restaurantId  | long | Идентификатор ресторана      |
+
+**Пример запроса**
+
+`GET /api/restaurants/500/orders/pending`
+
+**Ответ** 
+```json
+[
+  {
+    "id": 10001,
+    "userName": "Иван Петров",
+    "userPhone": "+7 916 111-22-33",
+    "totalAmount": 1520.00,
+    "status": "PAID",
+    "commentToRestaurant": "Пожалуйста, добавьте соус",
+    "createdAt": "2025-03-25T14:30:00",
+    "items": [
+      {
+        "productId": 1001,
+        "productName": "Пицца Маргарита",
+        "quantity": 2,
+        "price": 550.00
+      },
+      {
+        "productId": 1002,
+        "productName": "Цезарь с курицей",
+        "quantity": 1,
+        "price": 420.00
+      }
+    ]
+  }
+]
+```
+
+### 6. Получить подтверждённые заказы
+
+Возвращает список заказов, которые подтверждены рестораном и находятся в работе.
+
+**Endpoint**  
+`GET /api/restaurants/{restaurantId}/orders/confirmed`
+
+**Параметры запроса**
+
+| Параметр      | Тип  | Описание                     |
+|---------------|------|------------------------------|
+| restaurantId  | long | Идентификатор ресторана      |
+
+**Пример запроса**
+
+`GET /api/restaurants/500/orders/confirmed`
+
+**Ответ** 
+
+```json
+[
+  {
+    "id": 10002,
+    "userName": "Мария Сидорова",
+    "userPhone": "+7 905 444-55-66",
+    "totalAmount": 890.00,
+    "status": "ASSIGNED",
+    "commentToRestaurant": "Острая",
+    "createdAt": "2025-03-25T15:10:00",
+    "items": [
+      {
+        "productId": 1010,
+        "productName": "Лазанья",
+        "quantity": 1,
+        "price": 890.00
+      }
+    ]
+  }
+]
+```
+
+### 7. Отклонить заказ
+
+Отклоняет заказ рестораном. Статус заказа меняется на CANCELLED_BY_REST.
+
+**Endpoint**  
+
+`POST /api/restaurants/{restaurantId}/orders/{orderId}/reject`
+
+**Параметры запроса**
+
+| Параметр     | Тип  | Описание                    |
+|--------------|------|-----------------------------|
+| restaurantId | long | Идентификатор ресторана     |
+| orderId      | long | Идентификатор заказа        |
+
+**Пример запроса**
+
+`POST /api/restaurants/500/orders/10001/reject`
+
+**Ответ**
+
+```json
+{
+  "orderId": 10001,
+  "newStatus": "CANCELLED_BY_REST",
+  "message": "Заказ отклонён"
+}
+```
+
+### 8. Подтвердить заказ
+
+Подтверждает заказ рестораном.
+
+**Endpoint**
+
+`POST /api/restaurants/{restaurantId}/orders/{orderId}/confirm`
+
+**Параметры запроса**
+
+| Параметр     | Тип  | Описание                    |
+|--------------|------|-----------------------------|
+| restaurantId | long | Идентификатор ресторана     |
+| orderId      | long | Идентификатор заказа        |
+
+**Пример запроса**
+
+`POST /api/restaurants/500/orders/10001/confirm`
+
+**Ответ**
+
+```json
+{
+  "orderId": 10001,
+  "newStatus": "ASSIGNED",
+  "message": "Заказ подтверждён"
+}
+```
+
+### 9. Отметить заказ как готовый
+
+Помечает заказ как готовый к выдаче курьеру. Статус заказа меняется на READY.
+
+**Endpoint**
+
+`POST /api/restaurants/{restaurantId}/orders/{orderId}/ready`
+
+**Параметры запроса**
+
+| Параметр     | Тип  | Описание                    |
+|--------------|------|-----------------------------|
+| restaurantId | long | Идентификатор ресторана     |
+| orderId      | long | Идентификатор заказа        |
+
+**Пример запроса**
+
+`POST /api/restaurants/500/orders/10002/ready`
+
+**Ответ**
+
+```json
+{
+  "orderId": 10002,
+  "newStatus": "READY",
+  "message": "Заказ готов к выдаче"
+}
+```
+
+### 10. Получить назначенные заказы (статус ASSIGNED)
+
+Возвращает список заказов, назначенных курьеру и ожидающих получения в ресторане.
+
+**Endpoint**
+
+`GET /api/couriers/{courierId}/orders/assigned`
+
+**Параметры запроса**
+
+| Параметр     | Тип  | Описание                    |
+|--------------|------|-----------------------------|
+| courierId    | long | Идентификатор курьера       |
+
+**Пример запроса**
+
+`GET /api/couriers/42/orders/assigned`
+
+**Ответ**
+
+```json
+[
+  {
+    "id": 10001,
+    "restaurantName": "Итальянский дворик",
+    "restaurantAddress": "Москва, Тверская 10",
+    "deliveryAddress": "Москва, Тверская 15, кв. 45",
+    "totalAmount": 1520.00,
+    "commentToCourier": "Позвоните за 5 минут",
+    "leaveAtDoor": true,
+    "createdAt": "2025-03-25T14:30:00"
+  }
+]
+```
+
+### 11. Получить готовые заказы (статус READY)
+
+Возвращает список заказов, которые готовы к выдаче в ресторане и ожидают курьера.
+
+**Endpoint**
+
+`GET /api/couriers/{courierId}/orders/ready`
+
+**Параметры запроса**
+
+| Параметр     | Тип  | Описание                    |
+|--------------|------|-----------------------------|
+| courierId    | long | Идентификатор курьера       |
+
+**Пример запроса**
+
+`GET /api/couriers/42/orders/ready`
+
+**Ответ**
+
+```json
+[
+  {
+    "id": 10002,
+    "restaurantName": "Суши-бар",
+    "restaurantAddress": "Москва, Новый Арбат 15",
+    "deliveryAddress": "Москва, Кутузовский 20",
+    "totalAmount": 890.00,
+    "commentToCourier": "Осторожно, суши",
+    "leaveAtDoor": false,
+    "createdAt": "2025-03-25T15:10:00"
+  }
+]
+```
+
+### 12. Получить забранные заказы (статус PICKED_UP)
+
+Возвращает список заказов, которые курьер уже забрал и везёт клиенту.
+
+**Endpoint**
+
+`GET /api/couriers/{courierId}/orders/picked-up`
+
+**Параметры запроса**
+
+| Параметр     | Тип  | Описание                    |
+|--------------|------|-----------------------------|
+| courierId    | long | Идентификатор курьера       |
+
+**Пример запроса**
+
+`GET /api/couriers/42/orders/picked-up`
+
+**Ответ**
+
+```json
+[
+  {
+    "id": 10003,
+    "restaurantName": "Пиццерия",
+    "restaurantAddress": "Москва, Ленинский 30",
+    "deliveryAddress": "Москва, Университет 5",
+    "totalAmount": 1250.00,
+    "commentToCourier": "Позвоните при входе",
+    "leaveAtDoor": false,
+    "createdAt": "2025-03-25T16:20:00"
+  }
+]
+```
+
+### 13. Забрать заказ
+
+Курьер отмечает, что забрал заказ в ресторане. Статус заказа меняется на PICKED_UP.
+
+**Endpoint**
+
+`POST /api/couriers/{courierId}/orders/{orderId}/pickup`
+
+**Параметры запроса**
+
+| Параметр   | Тип  | Описание               |
+|------------|------|------------------------|
+| courierId  | long | Идентификатор курьера  |
+| orderId    | long | Идентификатор заказа   |
+
+**Пример запроса**
+
+`POST /api/couriers/42/orders/10001/pickup`
+
+**Ответ**
+
+```json
+{
+  "orderId": 10001,
+  "newStatus": "PICKED_UP",
+  "message": "Заказ забран курьером"
+}
+```
+
+### 14. Доставить заказ
+
+Курьер отмечает, что доставил заказ клиенту. Статус заказа меняется на DELIVERED.
+
+**Endpoint**
+
+`POST /api/couriers/{courierId}/orders/{orderId}/deliver`
+
+**Параметры запроса**
+
+| Параметр   | Тип  | Описание               |
+|------------|------|------------------------|
+| courierId  | long | Идентификатор курьера  |
+| orderId    | long | Идентификатор заказа   |
+
+**Пример запроса**
+
+`POST /api/couriers/42/orders/10001/deliver`
+
+**Ответ**
+
+```json
+{
+  "orderId": 10001,
+  "newStatus": "DELIVERED",
+  "message": "Заказ доставлен"
+}
+```
 
 ## Запуск и управление проектом
 
