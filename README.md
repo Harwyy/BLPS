@@ -634,9 +634,15 @@
 
 ### Запуск приложения
 ```bash
-mvn spring-boot:run
+mvn clean package
+mvn wildfly:deploy
+```
+### Остановка приложения
+```bash
+mvn wildfly:undeploy
 ```
 ### Форматирование кода
 ```bash
 mvn spotless:apply
 ```
+
