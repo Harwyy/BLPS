@@ -3,7 +3,7 @@ package com.blps.blps.controller;
 import com.blps.blps.dto.RestaurantOrderSummaryDto;
 import com.blps.blps.dto.response.RestaurantOrCourierOrderActionResponse;
 import com.blps.blps.entity.enums.OrderStatus;
-import com.blps.blps.service.RestaurantService;
+import com.blps.blps.service.restaurantServices.RestaurantService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

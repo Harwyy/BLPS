@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 > nul
-set BASE_URL=http://localhost:8080/api/couriers
+set BASE_URL=http://localhost:8080/blps-0.0.1-SNAPSHOT/api/couriers
 set COURIER_ID=1
 
 echo ===== GET /api/couriers/%COURIER_ID%/orders/ready =====

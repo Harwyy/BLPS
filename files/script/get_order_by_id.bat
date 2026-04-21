@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 > nul
-set BASE_URL=http://localhost:8080/api/orders
-set ORDER_ID=3
+set BASE_URL=http://localhost:8080/blps-0.0.1-SNAPSHOT/api/orders
+set ORDER_ID=1
 
 echo ===== GET /api/orders/%ORDER_ID% =====
 curl -s "%BASE_URL%/%ORDER_ID%" ^

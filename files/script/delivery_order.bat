@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 > nul
-set BASE_URL=http://localhost:8080/api/couriers
+set BASE_URL=http://localhost:8080/blps-0.0.1-SNAPSHOT/api/couriers
 set COURIER_ID=1
-set ORDER_ID=3
+set ORDER_ID=1
 
 echo ===== POST /api/couriers/%COURIER_ID%/orders/%ORDER_ID%/deliver =====
 curl -s -X POST "%BASE_URL%/%COURIER_ID%/orders/%ORDER_ID%/deliver" ^

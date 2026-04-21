@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 > nul
-set BASE_URL=http://localhost:8080/api/restaurants
+set BASE_URL=http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants
 set RESTAURANT_ID=8
 set ORDER_ID=1
 

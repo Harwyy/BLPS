@@ -1,4 +1,4 @@
-package com.blps.blps.service;
+package com.blps.blps.service.courierServices;
 
 import com.blps.blps.dto.CourierOrderSummaryDto;
 import com.blps.blps.dto.response.RestaurantOrCourierOrderActionResponse;
@@ -10,7 +10,8 @@ import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.exception.BusinessException;
 import com.blps.blps.exception.ResourceNotFoundException;
 import com.blps.blps.repository.CourierRepository;
-import com.blps.blps.utils.DistanceCalculator;
+import com.blps.blps.service.OrderService;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -23,30 +24,14 @@ public class CourierService {
 
     private final CourierRepository courierRepository;
     private final OrderService orderService;
-    private final DistanceCalculator distanceCalculator;
-
-    @Transactional
-    public void assignCourierToOrder(Long orderId, Courier courier) {
-        Order order = orderService.getOrderById(orderId);
-
-        order.setCourier(courier);
-        order.setStatus(OrderStatus.ASSIGNED);
-        orderService.save(order);
-
-        courier.setActiveOrdersCount(courier.getActiveOrdersCount() + 1);
-        if (courier.getActiveOrdersCount() >= 2) {
-            courier.setStatus(CourierStatus.BUSY);
-        }
-        courierRepository.save(courier);
-    }
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse pickUpOrder(Long orderId, Long courierId) {
         Order order = orderService.getOrderByIdAndCourierId(orderId, courierId);
 
-        if (order.getStatus() != OrderStatus.READY) {
+        if (order.getStatus() != OrderStatus.ASSIGNED) {
             throw new BusinessException(
-                    "Заказ можно забрать только в статусе 'ГОТОВ'. Текущий статус: " + order.getStatus());
+                    "Заказ можно забрать только в статусе 'НАЗНАЧЕН'. Текущий статус: " + order.getStatus());
         }
 
         order.setStatus(OrderStatus.PICKED_UP);
@@ -101,43 +86,5 @@ public class CourierService {
 
     private String formatAddress(Address address) {
         return String.format("%s, %s %d", address.getCity(), address.getStreet(), address.getBuilding());
-    }
-
-    public Courier findBestCourierForOrder(Order order) {
-        String city = order.getRestaurant().getAddress().getCity();
-        Address restaurantAddress = order.getRestaurant().getAddress();
-
-        List<Courier> availableCouriers = courierRepository.findByCityAndStatus(city, CourierStatus.AVAILABLE).stream()
-                .filter(c -> c.getActiveOrdersCount() < 2)
-                .collect(Collectors.toList());
-
-        if (availableCouriers.isEmpty()) {
-            throw new BusinessException("Нет доступных курьеров в городе " + city);
-        }
-
-        for (Courier courier : availableCouriers) {
-            double distance = distanceCalculator.calculateDistance(
-                    courier.getCurrentLatitude(), courier.getCurrentLongitude(),
-                    restaurantAddress.getLatitude(), restaurantAddress.getLongitude());
-            double score = calculateScore(courier, distance);
-            courier.setScore(score);
-        }
-
-        availableCouriers.sort((c1, c2) -> Double.compare(c2.getScore(), c1.getScore()));
-
-        return availableCouriers.get(0);
-    }
-
-    private double calculateScore(Courier courier, double distance) {
-        double distanceWeight = 0.5;
-        double ratingWeight = 0.3;
-        double loadWeight = 0.2;
-
-        double maxDistance = 10.0;
-        double distanceScore = Math.max(0, maxDistance - distance) / maxDistance;
-        double ratingScore = courier.getRating() / 5.0;
-        double loadScore = 1.0 - (courier.getActiveOrdersCount() / 2.0);
-
-        return distanceScore * distanceWeight + ratingScore * ratingWeight + loadScore * loadWeight;
     }
 }
