@@ -1114,3 +1114,12 @@ mvn wildfly:undeploy
 mvn spotless:apply
 ```
 
+### Вроде даже поднялось на helios
+```bash
+mvn clean package -DskipTests
+mvn wildfly:deploy -DskipTests
+
+unset _JAVA_OPTIONS
+export JAVA_OPTS="-XX:MaxMetaspaceSize=512m -Xms128m -Xmx1024m"
+./standalone.sh
+```
