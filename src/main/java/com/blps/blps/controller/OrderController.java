@@ -25,6 +25,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
