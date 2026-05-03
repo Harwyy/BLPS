@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CourierRepository extends JpaRepository<Courier, Long> {
     List<Courier> findByCityAndStatus(String city, CourierStatus status);
+
+    List<Courier> findByStatus(CourierStatus status);
 }

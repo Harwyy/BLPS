@@ -20,4 +20,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByCourierIdAndStatus(Long courierId, OrderStatus status);
 
     List<Order> findByCreatedAtBeforeAndStatusNotIn(LocalDateTime cutoffTime, List<OrderStatus> excludedStatuses);
+
+    long countByCourierIdAndStatusIn(Long id, List<OrderStatus> activeStatuses);
 }

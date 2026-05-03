@@ -21,10 +21,9 @@ public class OrderController {
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderCreateRequest request) {
-        OrderResponse response = orderService.createOrder(request);
+        OrderResponse response = orderService.createOrderAsync(request);
         return ResponseEntity.ok(response);
     }
-
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
