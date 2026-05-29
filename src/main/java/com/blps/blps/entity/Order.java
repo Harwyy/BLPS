@@ -73,4 +73,7 @@ public class Order {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "yandex_tracker_id")
+    private String yandexTrackerId;
 }

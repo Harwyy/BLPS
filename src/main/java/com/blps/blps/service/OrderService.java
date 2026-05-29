@@ -13,6 +13,8 @@ import com.blps.blps.repository.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.yandex.tracker.jca.model.Issue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -31,9 +33,11 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final AddressMapper addressMapper;
     private final TransactionTemplate transactionTemplate;
+    private final YandexTrackerService trackerService;
 
     private final JmsTemplate jmsTemplate;
     private static final String QUEUE_PREPARATION = "order.preparation";
+    private static final Integer DEFAULT_QUEUE_ID = 1;
 
 
     @Transactional
@@ -67,6 +71,22 @@ public class OrderService {
         order.setStatus(OrderStatus.CREATED);
         order.setTotalAmount(BigDecimal.ZERO);
         order.setItems(new ArrayList<>());
+
+        String issueKey = null;
+        try {
+            String summary = "Заказ #" + order.getId() + " от пользователя " + user.getName();
+            String description = String.format(
+                    "Детали заказа:\nРесторан: %s\nКомментарий к ресторану: %s\nКомментарий к курьеру: %s\nОставить у двери: %s",
+                    restaurant.getName(),
+                    request.getCommentToRestaurant(),
+                    request.getCommentToCourier(),
+                    request.getLeaveAtDoor()
+            );
+            Issue createdIssue = trackerService.createIssue(summary, description, DEFAULT_QUEUE_ID);
+            issueKey = createdIssue.getKey();
+        } catch (Exception e) {
+        }
+        order.setYandexTrackerId(issueKey);
         Order savedOrder = orderRepository.save(order);
 
         OrderProcessingMessage message = new OrderProcessingMessage(

@@ -14,6 +14,8 @@ import com.blps.blps.service.OrderService;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.blps.blps.service.YandexTrackerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class CourierService {
 
     private final CourierRepository courierRepository;
     private final OrderService orderService;
+    private final YandexTrackerService trackerService;
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse pickUpOrder(Long orderId, Long courierId) {
@@ -49,6 +52,18 @@ public class CourierService {
             throw new BusinessException(
                     "Заказ можно доставить только после того, как он был принят курьером. Текущий статус: "
                             + order.getStatus());
+        }
+
+        if (order.getYandexTrackerId() != null && !order.getYandexTrackerId().isEmpty()) {
+            try {
+                String newSummary = "Заказ #" + order.getId() + " доставлен";
+                String newDescription = String.format(
+                        "Статус: DELIVERED\nКурьер: %d\nДата доставки: %s\nИсходный комментарий: %s",
+                        courierId, java.time.LocalDateTime.now(), order.getCommentToCourier()
+                );
+                trackerService.updateIssue(order.getYandexTrackerId(), newSummary, newDescription);
+            } catch (Exception e) {
+            }
         }
 
         order.setStatus(OrderStatus.DELIVERED);
