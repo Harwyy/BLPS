@@ -1098,6 +1098,21 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | POST   | /api/couriers/{courierId}/orders/{orderId}/pickup   | COURIER (с проверкой) или ADMIN  |
 | POST   | /api/couriers/{courierId}/orders/{orderId}/deliver  | COURIER (с проверкой) или ADMIN  |
 
+## Фоновые задачи
+
+### CourierReleaseJob - освобождение курьеров
+Синхронизирует фактическое количество активных заказов у курьера с его статусом. 
+Если курьер по какой-то причине завис в статусе BUSY, но не имеет активных заказов - 
+задача возвращает его в состояние AVAILABLE.
+
+Задача запускается раз в час.
+
+### OldOrdersCancelJob - автоматическая отмена старых заказов
+Отменяет заказы, которые были созданы более 24 часов назад и
+до сих пор не перешли в финальный статус (доставлен или отменён).
+
+Задача запускается раз в сутки.
+
 ## Запуск и управление проектом
 
 ### Запуск приложения
@@ -1122,4 +1137,7 @@ mvn wildfly:deploy -DskipTests
 unset _JAVA_OPTIONS
 export JAVA_OPTS="-XX:MaxMetaspaceSize=512m -Xms128m -Xmx1024m"
 ./standalone.sh
+
+
+mvn --% wildfly:deploy -Djboss.management.port=10090
 ```

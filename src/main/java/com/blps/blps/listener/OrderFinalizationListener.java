@@ -28,7 +28,7 @@ public class OrderFinalizationListener {
                 order.getRestaurant().getAddress(),
                 order.getDeliveryAddress()
         );
-        order.setEstimatedDeliveryTime(deliveryTime);
+        order.setEstimatedDeliveryTime(deliveryTime + 100);
         orderRepository.save(order);
     }
 }
