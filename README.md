@@ -1117,8 +1117,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 ### Запуск приложения
 ```bash
-mvn clean package
-mvn wildfly:deploy
+mvn clean package -DskipTests
+mvn wildfly:deploy -DskipTests
 ```
 ### Остановка приложения
 ```bash
@@ -1138,16 +1138,5 @@ unset _JAVA_OPTIONS
 export JAVA_OPTS="-XX:MaxMetaspaceSize=512m -Xms128m -Xmx1024m"
 ./standalone.sh
 
-
 mvn --% wildfly:deploy -Djboss.management.port=10090
-
-/subsystem=resource-adapters/resource-adapter=yandex-tracker:add(archive=yandex-tracker-jca-adapter-1.0.0.rar, transaction-support=NoTransaction)
-
-/subsystem=resource-adapters/resource-adapter=yandex-tracker/connection-definitions=YandexTrackerCF:add(class-name=com.yandex.tracker.jca.impl.YandexTrackerManagedConnectionFactory,jndi-name=java:jboss/YandexTrackerCF,enabled=true,use-java-context=true)
-
-/subsystem=resource-adapters/resource-adapter=yandex-tracker/connection-definitions=YandexTrackerCF/config-properties=TrackerUrl:add(value=https://api.tracker.yandex.net/v3)
-
-/subsystem=resource-adapters/resource-adapter=yandex-tracker/connection-definitions=YandexTrackerCF/config-properties=Token:add(value=y0__wgBEIGn6uYFGJnSQiDOsIvaFysdo1XROeIiTAxoF8yVHwg_K-7C)
-
-/subsystem=resource-adapters/resource-adapter=yandex-tracker/connection-definitions=YandexTrackerCF/config-properties=OrgId:add(value=bpftdnq77s63ahcadk85)
 ```

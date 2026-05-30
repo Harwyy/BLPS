@@ -73,9 +73,10 @@ public class OrderService {
         order.setItems(new ArrayList<>());
 
         String issueKey = null;
+        String description = null;
         try {
             String summary = "Заказ #" + order.getId() + " от пользователя " + user.getName();
-            String description = String.format(
+            description = String.format(
                     "Детали заказа:\nРесторан: %s\nКомментарий к ресторану: %s\nКомментарий к курьеру: %s\nОставить у двери: %s",
                     restaurant.getName(),
                     request.getCommentToRestaurant(),
@@ -88,6 +89,10 @@ public class OrderService {
         }
         order.setYandexTrackerId(issueKey);
         Order savedOrder = orderRepository.save(order);
+
+        try {
+            trackerService.updateIssue(issueKey, "Заказ #" + order.getId() + " от пользователя " + user.getName(), description);
+        } catch (Exception e) {}
 
         OrderProcessingMessage message = new OrderProcessingMessage(
                 savedOrder.getId(),
