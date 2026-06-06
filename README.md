@@ -1136,6 +1136,7 @@ mvn wildfly:deploy -DskipTests
 
 unset _JAVA_OPTIONS
 export JAVA_OPTS="-XX:MaxMetaspaceSize=512m -Xms128m -Xmx1024m"
+export JAVA_OPTS="-Xms64m -Xmx256m -Xss256k -XX:MaxMetaspaceSize=128m"
 ./standalone.sh
 
 mvn --% wildfly:deploy -Djboss.management.port=10090
