@@ -1,0 +1,86 @@
+{
+  "components": [
+    {
+      "text": "# Подтвердите, что вы доставили заказ",
+      "type": "text",
+      "layout": {
+        "row": "Row_0kbumn9",
+        "columns": null
+      },
+      "id": "Field_0tdni5e"
+    },
+    {
+      "text": "<h2>Заказ для доставки</h2>",
+      "type": "text",
+      "layout": {
+        "row": "Row_1qf71b7",
+        "columns": null
+      },
+      "id": "Field_1gguaf6"
+    },
+    {
+      "label": "Адрес ресторана",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1ytb4pe",
+        "columns": null
+      },
+      "id": "Field_1qi21vs",
+      "key": "restaurant_address",
+      "readonly": true
+    },
+    {
+      "label": "Номер ресторана",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1u2t87b",
+        "columns": null
+      },
+      "id": "Field_1x0f2lb",
+      "key": "restaurant_phone",
+      "readonly": true
+    },
+    {
+      "label": "Адрес доставки",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_09ssgyp",
+        "columns": null
+      },
+      "id": "Field_0phahau",
+      "key": "delivery_address",
+      "readonly": true
+    },
+    {
+      "label": "Номер заказчика",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0fmqf02",
+        "columns": null
+      },
+      "id": "Field_0pvh7vx",
+      "key": "customer_phone",
+      "readonly": true
+    },
+    {
+      "label": "Комментарий курьеру",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_05sf5au",
+        "columns": null
+      },
+      "id": "Field_0k51g88",
+      "key": "comment_to_courier",
+      "readonly": true
+    }
+  ],
+  "type": "default",
+  "id": "courier_two_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}

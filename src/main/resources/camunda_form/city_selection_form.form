@@ -1,0 +1,54 @@
+{
+  "components": [
+    {
+      "text": "# Выберите город",
+      "type": "text",
+      "layout": {
+        "row": "Row_1lh0dz1",
+        "columns": null
+      },
+      "id": "Field_1sceuq3"
+    },
+    {
+      "label": "",
+      "values": [
+        {
+          "label": "Москва",
+          "value": "Москва"
+        },
+        {
+          "label": "Санкт-Петербург",
+          "value": "Санкт-Петербург"
+        },
+        {
+          "label": "Казань",
+          "value": "Казань"
+        },
+        {
+          "label": "Новосибирск",
+          "value": "Новосибирск"
+        },
+        {
+          "label": "Екатеринбург",
+          "value": "Екатеринбург"
+        }
+      ],
+      "type": "select",
+      "layout": {
+        "row": "Row_0vazkqd",
+        "columns": null
+      },
+      "id": "Field_1ymq6aq",
+      "key": "city"
+    }
+  ],
+  "type": "default",
+  "id": "city_selection_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}

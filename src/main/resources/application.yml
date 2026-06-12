@@ -13,3 +13,11 @@ spring:
     show-sql: true
 server:
   port: 8080
+camunda:
+  client:
+    mode: self-managed
+    zeebe.gateway-address: localhost:26500
+  operate:
+    url: http://localhost:8080
+    username: demo
+    password: demo

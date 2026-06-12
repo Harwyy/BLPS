@@ -1,0 +1,98 @@
+{
+  "components": [
+    {
+      "text": "# Подтвердите, что вы забрали заказ",
+      "type": "text",
+      "layout": {
+        "row": "Row_0xcdviw",
+        "columns": null
+      },
+      "id": "Field_1ddwvun"
+    },
+    {
+      "text": "<h2>Заказ для доставки</h2>",
+      "type": "text",
+      "layout": {
+        "row": "Row_1ibeesz",
+        "columns": null
+      },
+      "id": "Field_04xr5z3"
+    },
+    {
+      "label": "Адрес ресторана",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1bse3yl",
+        "columns": null
+      },
+      "id": "Field_1c6610s",
+      "key": "restaurant_address",
+      "disabled": false,
+      "readonly": true
+    },
+    {
+      "label": "Номер ресторана",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_17lltma",
+        "columns": null
+      },
+      "id": "Field_0z2fcxt",
+      "key": "restaurant_phone",
+      "readonly": true
+    },
+    {
+      "label": "Адрес доставки",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_199jqgb",
+        "columns": null
+      },
+      "id": "Field_1lkbnet",
+      "key": "delivery_address",
+      "readonly": true
+    },
+    {
+      "label": "Номер заказчика",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_18c9eh8",
+        "columns": null
+      },
+      "id": "Field_15jrzih",
+      "key": "customer_phone",
+      "readonly": true
+    },
+    {
+      "label": "Оценочное время доставки",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_13urdko",
+        "columns": null
+      },
+      "id": "Field_1u7bxl3",
+      "key": "estimated_delivery_time",
+      "readonly": true
+    },
+    {
+      "label": "Комментарий курьеру",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_06wh7wk",
+        "columns": null
+      },
+      "id": "Field_10tvto6",
+      "key": "comment_to_courier",
+      "readonly": true
+    }
+  ],
+  "type": "default",
+  "id": "courier_one_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}

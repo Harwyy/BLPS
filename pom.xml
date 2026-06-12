@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.4</version>
+		<version>3.5.2</version>
 		<relativePath/>
 	</parent>
 
@@ -132,6 +132,12 @@
 		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.camunda</groupId>
+			<artifactId>camunda-spring-boot-3-starter</artifactId>
+			<version>8.9.0</version>
 		</dependency>
 
 	</dependencies>

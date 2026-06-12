@@ -1,0 +1,34 @@
+{
+  "components": [
+    {
+      "text": "# Выберите ресторан",
+      "type": "text",
+      "layout": {
+        "row": "Row_1u76h88",
+        "columns": null
+      },
+      "id": "Field_0wnkaws"
+    },
+    {
+      "label": "Выберите ресторан",
+      "type": "select",
+      "layout": {
+        "row": "Row_1t6g6dd",
+        "columns": null
+      },
+      "id": "Field_11ai8qp",
+      "key": "restaurant_id",
+      "valuesKey": "restaurants_list",
+      "searchable": false
+    }
+  ],
+  "type": "default",
+  "id": "restaurant_selection_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}

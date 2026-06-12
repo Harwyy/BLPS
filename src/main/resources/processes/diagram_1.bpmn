@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ip7rv7" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.46.1" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
+  <bpmn:collaboration id="Collaboration_0qeiny0">
+    <bpmn:participant id="Participant_1v5iqr5" name="Client" processRef="client_process" />
+    <bpmn:participant id="Participant_0s4pw72" name="Restaurant" processRef="restaurant_process" />
+    <bpmn:participant id="Participant_08f8duu" name="Courier" processRef="courier_process" />
+    <bpmn:messageFlow id="Flow_1d6hh6q" sourceRef="restaurantNotification" targetRef="startEventRestaurant" />
+    <bpmn:messageFlow id="Flow_0jha92h" sourceRef="courierNotification" targetRef="startEventCourier" />
+  </bpmn:collaboration>
+  <bpmn:process id="client_process" name="Клиентский процесс" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_0b7fdph">
+      <bpmn:lane id="Lane_191q92y" name="Server">
+        <bpmn:flowNodeRef>fetchRestaurants</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fetchMenu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>validateItems</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventEmptyListOfItems</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>getUser</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>getRestaurant</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventUnknownRestaurant</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>determineDeliveryAddress</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventUnknownAddress</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>createOrderObject</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>processOrderItems</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventExceptionWithItems</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>saveOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>setWaitingPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>processPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>cancelOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>setPaid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>calculateDeliveryTime</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>saveDeliveryTime</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>restaurantNotification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventClient</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>payException</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>exceptionWithItems</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>unknownAddress</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>unknownRestaurant</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>emptyListOfItems</bpmn:flowNodeRef>
+        <bpmn:childLaneSet id="LaneSet_0a3zlor" />
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1o1f71d" name="Client">
+        <bpmn:flowNodeRef>startEvent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>selectCity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>selectRestaurant</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>createOrder</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="startEvent" name="Начало процесса клиента">
+      <bpmn:outgoing>Flow_1o4nw1r</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="fetchRestaurants" name="Загрузить список ресторанов">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="fetch-restaurants" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1n3ns9k</bpmn:incoming>
+      <bpmn:outgoing>Flow_0sorrt6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="selectCity" name="Выбрать городу">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="city_selection_form" />
+        <zeebe:assignmentDefinition assignee="client" candidateUsers="client" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1o4nw1r</bpmn:incoming>
+      <bpmn:outgoing>Flow_1n3ns9k</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="selectRestaurant" name="Выбрать ресторан">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="restaurant_selection_form" />
+        <zeebe:assignmentDefinition assignee="client" candidateUsers="client" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0sorrt6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ohfhr4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="fetchMenu" name="Загрузить меню">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="fetch-menu" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ohfhr4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0f5wsyv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="createOrder" name="Оформить заказ">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="create_order_form" />
+        <zeebe:assignmentDefinition assignee="client" candidateUsers="client" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0f5wsyv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1uvcgdo</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="validateItems" name="Проверка, что список товаров не пуст">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="validate-items" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1uvcgdo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ph7l6v</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventEmptyListOfItems" name="Конец: пустой список товаров">
+      <bpmn:incoming>Flow_1bykmb8</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0s9uqoh" errorRef="Error_0w3vseo" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="getUser" name="Проверка информации о клиенте">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="get-user" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ph7l6v</bpmn:incoming>
+      <bpmn:outgoing>Flow_1iodqmz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="getRestaurant" name="Проверка информации о ресторане">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="get-restaurant" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1iodqmz</bpmn:incoming>
+      <bpmn:outgoing>Flow_102v6pp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventUnknownRestaurant" name="Конец: ресторан не найден">
+      <bpmn:incoming>Flow_1urasfm</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1famfjz" errorRef="Error_1oqkfat" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="determineDeliveryAddress" name="Проверка адреса доставки">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="determine-delivery-address" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_102v6pp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0yhstqr</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventUnknownAddress" name="Конец: отсутствует адрес доставки">
+      <bpmn:incoming>Flow_1bb539w</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1mx70hw" errorRef="Error_0w3vseo" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="createOrderObject" name="Создание объекта Order (без позиций)">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="create-order-object" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0yhstqr</bpmn:incoming>
+      <bpmn:outgoing>Flow_01que5f</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="processOrderItems" name="Формирование списка OrderItem и подсчёт суммы">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="process-order-items" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_01que5f</bpmn:incoming>
+      <bpmn:outgoing>Flow_1gqtlv6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventExceptionWithItems" name="Конец: обработки товаров">
+      <bpmn:incoming>Flow_18q89kn</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1cselue" errorRef="Error_0w3vseo" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="saveOrder" name="Сохранение заказа в БД">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="save-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1gqtlv6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1gp702c</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="setWaitingPayment" name="Установка статуса WAITING_PAYMENT">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="set-waiting-payment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1gp702c</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jp51ze</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="processPayment" name="Обработка платежа">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="process-payment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0jp51ze</bpmn:incoming>
+      <bpmn:outgoing>Flow_1uuqilj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="cancelOrder" name="Установка статуса CANCELLED">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="cancel-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1qpc9od</bpmn:incoming>
+      <bpmn:outgoing>Flow_14hfek6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventPayment" name="Конец: оплата">
+      <bpmn:incoming>Flow_14hfek6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="setPaid" name="Установка статуса PAID">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="set-paid" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1uuqilj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rsnlut</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="calculateDeliveryTime" name="Расчёт времени доставки">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="calculate-delivery-time" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1rsnlut</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lu7ulv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="saveDeliveryTime" name="Сохранение времени доставки в заказе">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="save-delivery-time" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1lu7ulv</bpmn:incoming>
+      <bpmn:outgoing>Flow_111fmnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="restaurantNotification" name="Передача данных ресторану">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="restaurant-notification" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_111fmnd</bpmn:incoming>
+      <bpmn:outgoing>Flow_19rzzgc</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventClient" name="Конец клиентского процесса">
+      <bpmn:incoming>Flow_19rzzgc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="payException" name="Ошибка: оплата" attachedToRef="processPayment">
+      <bpmn:outgoing>Flow_1qpc9od</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0ig1uao" errorRef="Error_0mv4z3x" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="exceptionWithItems" name="Ошибка: обработки товаров" attachedToRef="processOrderItems">
+      <bpmn:outgoing>Flow_18q89kn</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1g8rakt" errorRef="Error_0w3vseo" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="unknownAddress" name="Ошибка: отсутствует адрес доставки" attachedToRef="determineDeliveryAddress">
+      <bpmn:outgoing>Flow_1bb539w</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0wi7l77" errorRef="Error_0w3vseo" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="unknownRestaurant" name="Ошибка: ресторан не найден" attachedToRef="getRestaurant">
+      <bpmn:outgoing>Flow_1urasfm</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0pm1x5l" errorRef="Error_1oqkfat" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="emptyListOfItems" name="Ошибка: пустой список товаров" attachedToRef="validateItems">
+      <bpmn:outgoing>Flow_1bykmb8</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1puqp5h" errorRef="Error_0w3vseo" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1o4nw1r" sourceRef="startEvent" targetRef="selectCity" />
+    <bpmn:sequenceFlow id="Flow_1n3ns9k" sourceRef="selectCity" targetRef="fetchRestaurants" />
+    <bpmn:sequenceFlow id="Flow_0sorrt6" sourceRef="fetchRestaurants" targetRef="selectRestaurant" />
+    <bpmn:sequenceFlow id="Flow_1ohfhr4" sourceRef="selectRestaurant" targetRef="fetchMenu" />
+    <bpmn:sequenceFlow id="Flow_0f5wsyv" sourceRef="fetchMenu" targetRef="createOrder" />
+    <bpmn:sequenceFlow id="Flow_1uvcgdo" sourceRef="createOrder" targetRef="validateItems" />
+    <bpmn:sequenceFlow id="Flow_1ph7l6v" sourceRef="validateItems" targetRef="getUser" />
+    <bpmn:sequenceFlow id="Flow_1bykmb8" sourceRef="emptyListOfItems" targetRef="endEventEmptyListOfItems" />
+    <bpmn:sequenceFlow id="Flow_1iodqmz" sourceRef="getUser" targetRef="getRestaurant" />
+    <bpmn:sequenceFlow id="Flow_102v6pp" sourceRef="getRestaurant" targetRef="determineDeliveryAddress" />
+    <bpmn:sequenceFlow id="Flow_1urasfm" sourceRef="unknownRestaurant" targetRef="endEventUnknownRestaurant" />
+    <bpmn:sequenceFlow id="Flow_0yhstqr" sourceRef="determineDeliveryAddress" targetRef="createOrderObject" />
+    <bpmn:sequenceFlow id="Flow_1bb539w" sourceRef="unknownAddress" targetRef="endEventUnknownAddress" />
+    <bpmn:sequenceFlow id="Flow_01que5f" sourceRef="createOrderObject" targetRef="processOrderItems" />
+    <bpmn:sequenceFlow id="Flow_1gqtlv6" sourceRef="processOrderItems" targetRef="saveOrder" />
+    <bpmn:sequenceFlow id="Flow_18q89kn" sourceRef="exceptionWithItems" targetRef="endEventExceptionWithItems" />
+    <bpmn:sequenceFlow id="Flow_1gp702c" sourceRef="saveOrder" targetRef="setWaitingPayment" />
+    <bpmn:sequenceFlow id="Flow_0jp51ze" sourceRef="setWaitingPayment" targetRef="processPayment" />
+    <bpmn:sequenceFlow id="Flow_1uuqilj" sourceRef="processPayment" targetRef="setPaid" />
+    <bpmn:sequenceFlow id="Flow_1qpc9od" sourceRef="payException" targetRef="cancelOrder" />
+    <bpmn:sequenceFlow id="Flow_14hfek6" sourceRef="cancelOrder" targetRef="endEventPayment" />
+    <bpmn:sequenceFlow id="Flow_1rsnlut" sourceRef="setPaid" targetRef="calculateDeliveryTime" />
+    <bpmn:sequenceFlow id="Flow_1lu7ulv" sourceRef="calculateDeliveryTime" targetRef="saveDeliveryTime" />
+    <bpmn:sequenceFlow id="Flow_111fmnd" sourceRef="saveDeliveryTime" targetRef="restaurantNotification" />
+    <bpmn:sequenceFlow id="Flow_19rzzgc" sourceRef="restaurantNotification" targetRef="endEventClient" />
+  </bpmn:process>
+  <bpmn:error id="Error_0w3vseo" name="BusinessException" errorCode="BusinessException" />
+  <bpmn:error id="Error_1oqkfat" name="ResourceNotFoundException" errorCode="ResourceNotFoundException" />
+  <bpmn:error id="Error_0mv4z3x" name="PaymentFailed" errorCode="PaymentFailed" />
+  <bpmn:process id="restaurant_process" name="Процесс ресторана" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_0ytvc4g">
+      <bpmn:lane id="Lane_1pm715o" name="Server">
+        <bpmn:flowNodeRef>loadOrderItems</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1jgj6s5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>rejectOrderByRest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventCancelByRestauranta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>confirmOrderByRest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>courierNotification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventRestauranta</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>markOrderReady</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1y1aws6" name="Restaurant">
+        <bpmn:flowNodeRef>startEventRestaurant</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>commitOrderByRest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>markOrderReadyForm</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="startEventRestaurant" name="Начало процесса ресторана">
+      <bpmn:outgoing>Flow_0iny2l0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="loadOrderItems" name="Загрузить информацию о товаре">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="load-order-items" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0iny2l0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1b0kpax</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="commitOrderByRest" name="Подтвердить заказ">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="restaurant_decision_form" />
+        <zeebe:assignmentDefinition assignee="restaurant" candidateUsers="restaurant" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1b0kpax</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kcd1g3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1jgj6s5" name="Подтвердил ли ресторана заказ?">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1kcd1g3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wipqap</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0h53ejx</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="rejectOrderByRest" name="Установка статуса CANCELLED_BY_REST">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="reject-order-by-rest" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0h53ejx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1iuo9xz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventCancelByRestauranta" name="Конец: отмена заказа рестораном">
+      <bpmn:incoming>Flow_1iuo9xz</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="confirmOrderByRest" name="Установка статуса PREPARING">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="confirm-order-by-rest" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wipqap</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mfp9f2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0iny2l0" sourceRef="startEventRestaurant" targetRef="loadOrderItems" />
+    <bpmn:sequenceFlow id="Flow_1b0kpax" sourceRef="loadOrderItems" targetRef="commitOrderByRest" />
+    <bpmn:sequenceFlow id="Flow_1kcd1g3" sourceRef="commitOrderByRest" targetRef="Gateway_1jgj6s5" />
+    <bpmn:sequenceFlow id="Flow_1wipqap" name="Подтвержден" sourceRef="Gateway_1jgj6s5" targetRef="confirmOrderByRest">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=restaurant_decision = "confirm"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0h53ejx" name="Отклонен" sourceRef="Gateway_1jgj6s5" targetRef="rejectOrderByRest">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=restaurant_decision = "reject"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1iuo9xz" sourceRef="rejectOrderByRest" targetRef="endEventCancelByRestauranta" />
+    <bpmn:sequenceFlow id="Flow_1mfp9f2" sourceRef="confirmOrderByRest" targetRef="markOrderReadyForm" />
+    <bpmn:sequenceFlow id="Flow_061lnjn" sourceRef="courierNotification" targetRef="endEventRestauranta" />
+    <bpmn:userTask id="markOrderReadyForm" name="Заказ готов">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="mark_order_ready_form" />
+        <zeebe:assignmentDefinition assignee="restaurant" candidateUsers="restaurant" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1mfp9f2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0yoiqm7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="courierNotification" name="Запросить курьера">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="courier-notification" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0m10nhe</bpmn:incoming>
+      <bpmn:outgoing>Flow_061lnjn</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEventRestauranta" name="Конец процесса ресторана">
+      <bpmn:incoming>Flow_061lnjn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0yoiqm7" sourceRef="markOrderReadyForm" targetRef="markOrderReady" />
+    <bpmn:serviceTask id="markOrderReady" name="Установка статуса READY">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="mark-order-ready" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0yoiqm7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0m10nhe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0m10nhe" sourceRef="markOrderReady" targetRef="courierNotification" />
+  </bpmn:process>
+  <bpmn:process id="courier_process" name="Курьерский процесс" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_0jxbdss">
+      <bpmn:lane id="Lane_07p8y8w" name="Server">
+        <bpmn:flowNodeRef>startEventCourier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>selectBestCourier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>reserveCourier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>assignCourierToOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prepareCourierData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>pickUpOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>deliverOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>endEventCourier</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_01xfwbb" name="Courier">
+        <bpmn:flowNodeRef>courierOneForm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1e0aeas</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="startEventCourier" name="Начало курьерского процесса">
+      <bpmn:outgoing>Flow_0mtopwh</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="selectBestCourier" name="Выбор лучшего курьера">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="validate-order-and-select-best-courier" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0mtopwh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0opoaf3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0mtopwh" sourceRef="startEventCourier" targetRef="selectBestCourier" />
+    <bpmn:serviceTask id="reserveCourier" name="Разервирование курьера">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="reserve-courier" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0opoaf3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0sn3v02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0opoaf3" sourceRef="selectBestCourier" targetRef="reserveCourier" />
+    <bpmn:serviceTask id="assignCourierToOrder" name="Назначение заказу курьера">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="assign-courier-to-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0sn3v02</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h1gjul</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0sn3v02" sourceRef="reserveCourier" targetRef="assignCourierToOrder" />
+    <bpmn:serviceTask id="prepareCourierData" name="Подготовка данных о заказе">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="prepare-courier-data" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0h1gjul</bpmn:incoming>
+      <bpmn:outgoing>Flow_0fo1eeo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0h1gjul" sourceRef="assignCourierToOrder" targetRef="prepareCourierData" />
+    <bpmn:userTask id="courierOneForm" name="Курьер забрал заказ">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="courier_one_form" />
+        <zeebe:assignmentDefinition assignee="courier" candidateUsers="courier" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0fo1eeo</bpmn:incoming>
+      <bpmn:outgoing>Flow_12hn9am</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0fo1eeo" sourceRef="prepareCourierData" targetRef="courierOneForm" />
+    <bpmn:serviceTask id="pickUpOrder" name="Установка статуса PICKUP">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="pick-up-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12hn9am</bpmn:incoming>
+      <bpmn:outgoing>Flow_0l6zxdu</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_12hn9am" sourceRef="courierOneForm" targetRef="pickUpOrder" />
+    <bpmn:userTask id="Activity_1e0aeas" name="Курьер доставил заказ">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="courier_two_form" />
+        <zeebe:assignmentDefinition assignee="courier" candidateUsers="courier" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0l6zxdu</bpmn:incoming>
+      <bpmn:outgoing>Flow_060tsth</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0l6zxdu" sourceRef="pickUpOrder" targetRef="Activity_1e0aeas" />
+    <bpmn:serviceTask id="deliverOrder" name="Установка статуса DELIVERED">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="deliver-order" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_060tsth</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xc94q6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_060tsth" sourceRef="Activity_1e0aeas" targetRef="deliverOrder" />
+    <bpmn:sequenceFlow id="Flow_1xc94q6" sourceRef="deliverOrder" targetRef="endEventCourier" />
+    <bpmn:endEvent id="endEventCourier" name="Конец курьерского процесса">
+      <bpmn:incoming>Flow_1xc94q6</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0qeiny0">
+      <bpmndi:BPMNShape id="Participant_1v5iqr5_di" bpmnElement="Participant_1v5iqr5" isHorizontal="true">
+        <dc:Bounds x="160" y="1830" width="2950" height="765" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_191q92y_di" bpmnElement="Lane_191q92y" isHorizontal="true">
+        <dc:Bounds x="190" y="1830" width="2920" height="465" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1o1f71d_di" bpmnElement="Lane_1o1f71d" isHorizontal="true">
+        <dc:Bounds x="190" y="2295" width="2920" height="300" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1c6ug7x_di" bpmnElement="startEvent">
+        <dc:Bounds x="262" y="2427" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="2470" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pr5p3n_di" bpmnElement="fetchRestaurants">
+        <dc:Bounds x="330" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bf06mp_di" bpmnElement="selectCity">
+        <dc:Bounds x="330" y="2405" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1p4zmsy_di" bpmnElement="selectRestaurant">
+        <dc:Bounds x="470" y="2405" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01yr18w_di" bpmnElement="fetchMenu">
+        <dc:Bounds x="470" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oqnhb0_di" bpmnElement="createOrder">
+        <dc:Bounds x="610" y="2405" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_097alhb_di" bpmnElement="validateItems">
+        <dc:Bounds x="610" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1gzclkx_di" bpmnElement="endEventEmptyListOfItems">
+        <dc:Bounds x="692" y="2012" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="2016" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oq4ema_di" bpmnElement="getUser">
+        <dc:Bounds x="850" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bahf1e_di" bpmnElement="getRestaurant">
+        <dc:Bounds x="990" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0euj4b9_di" bpmnElement="endEventUnknownRestaurant">
+        <dc:Bounds x="1072" y="2012" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1117" y="2026" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03zwj26_di" bpmnElement="determineDeliveryAddress">
+        <dc:Bounds x="1220" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1yqoks3_di" bpmnElement="endEventUnknownAddress">
+        <dc:Bounds x="1302" y="2012" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1354" y="2010" width="80" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kat800_di" bpmnElement="createOrderObject">
+        <dc:Bounds x="1460" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1n3fmfz_di" bpmnElement="processOrderItems">
+        <dc:Bounds x="1600" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_03pk9yg_di" bpmnElement="endEventExceptionWithItems">
+        <dc:Bounds x="1682" y="2012" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1735" y="2026" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0krew66_di" bpmnElement="saveOrder">
+        <dc:Bounds x="1830" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e6khpa_di" bpmnElement="setWaitingPayment">
+        <dc:Bounds x="1970" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gq8vby_di" bpmnElement="processPayment">
+        <dc:Bounds x="2110" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0x51az8_di" bpmnElement="cancelOrder">
+        <dc:Bounds x="2110" y="1990" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1r2bvpf_di" bpmnElement="endEventPayment">
+        <dc:Bounds x="2252" y="2012" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2234" y="2055" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jqoccx_di" bpmnElement="setPaid">
+        <dc:Bounds x="2350" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0iglflu_di" bpmnElement="calculateDeliveryTime">
+        <dc:Bounds x="2490" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rvzcrc_di" bpmnElement="saveDeliveryTime">
+        <dc:Bounds x="2630" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0t9ijl1_di" bpmnElement="restaurantNotification">
+        <dc:Bounds x="2780" y="2110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19mrpny_di" bpmnElement="endEventClient">
+        <dc:Bounds x="2922" y="2132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2969" y="2130" width="62" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10g4574_di" bpmnElement="payException">
+        <dc:Bounds x="2192" y="2092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2238" y="2103" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1lvzgoe_di" bpmnElement="exceptionWithItems">
+        <dc:Bounds x="1682" y="2092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1753" y="2090" width="53" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0wdfiia_di" bpmnElement="unknownAddress">
+        <dc:Bounds x="1302" y="2092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1354" y="2090" width="80" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_04js90q_di" bpmnElement="unknownRestaurant">
+        <dc:Bounds x="1072" y="2092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1128" y="2090" width="63" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0anz1mb_di" bpmnElement="emptyListOfItems">
+        <dc:Bounds x="692" y="2092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="738" y="2096" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1o4nw1r_di" bpmnElement="Flow_1o4nw1r">
+        <di:waypoint x="298" y="2445" />
+        <di:waypoint x="330" y="2445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n3ns9k_di" bpmnElement="Flow_1n3ns9k">
+        <di:waypoint x="380" y="2405" />
+        <di:waypoint x="380" y="2190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0sorrt6_di" bpmnElement="Flow_0sorrt6">
+        <di:waypoint x="430" y="2150" />
+        <di:waypoint x="450" y="2150" />
+        <di:waypoint x="450" y="2445" />
+        <di:waypoint x="470" y="2445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ohfhr4_di" bpmnElement="Flow_1ohfhr4">
+        <di:waypoint x="520" y="2405" />
+        <di:waypoint x="520" y="2190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f5wsyv_di" bpmnElement="Flow_0f5wsyv">
+        <di:waypoint x="570" y="2150" />
+        <di:waypoint x="590" y="2150" />
+        <di:waypoint x="590" y="2445" />
+        <di:waypoint x="610" y="2445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1uvcgdo_di" bpmnElement="Flow_1uvcgdo">
+        <di:waypoint x="660" y="2405" />
+        <di:waypoint x="660" y="2190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ph7l6v_di" bpmnElement="Flow_1ph7l6v">
+        <di:waypoint x="710" y="2150" />
+        <di:waypoint x="850" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bykmb8_di" bpmnElement="Flow_1bykmb8">
+        <di:waypoint x="710" y="2092" />
+        <di:waypoint x="710" y="2048" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1iodqmz_di" bpmnElement="Flow_1iodqmz">
+        <di:waypoint x="950" y="2150" />
+        <di:waypoint x="990" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_102v6pp_di" bpmnElement="Flow_102v6pp">
+        <di:waypoint x="1090" y="2150" />
+        <di:waypoint x="1220" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1urasfm_di" bpmnElement="Flow_1urasfm">
+        <di:waypoint x="1090" y="2092" />
+        <di:waypoint x="1090" y="2048" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yhstqr_di" bpmnElement="Flow_0yhstqr">
+        <di:waypoint x="1320" y="2150" />
+        <di:waypoint x="1460" y="2150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1583" y="212" width="74" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bb539w_di" bpmnElement="Flow_1bb539w">
+        <di:waypoint x="1320" y="2092" />
+        <di:waypoint x="1320" y="2048" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01que5f_di" bpmnElement="Flow_01que5f">
+        <di:waypoint x="1560" y="2150" />
+        <di:waypoint x="1600" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gqtlv6_di" bpmnElement="Flow_1gqtlv6">
+        <di:waypoint x="1700" y="2150" />
+        <di:waypoint x="1830" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18q89kn_di" bpmnElement="Flow_18q89kn">
+        <di:waypoint x="1700" y="2092" />
+        <di:waypoint x="1700" y="2048" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gp702c_di" bpmnElement="Flow_1gp702c">
+        <di:waypoint x="1930" y="2150" />
+        <di:waypoint x="1970" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jp51ze_di" bpmnElement="Flow_0jp51ze">
+        <di:waypoint x="2070" y="2150" />
+        <di:waypoint x="2110" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1uuqilj_di" bpmnElement="Flow_1uuqilj">
+        <di:waypoint x="2210" y="2150" />
+        <di:waypoint x="2350" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qpc9od_di" bpmnElement="Flow_1qpc9od">
+        <di:waypoint x="2210" y="2092" />
+        <di:waypoint x="2210" y="2081" />
+        <di:waypoint x="2160" y="2081" />
+        <di:waypoint x="2160" y="2070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14hfek6_di" bpmnElement="Flow_14hfek6">
+        <di:waypoint x="2210" y="2030" />
+        <di:waypoint x="2252" y="2030" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rsnlut_di" bpmnElement="Flow_1rsnlut">
+        <di:waypoint x="2450" y="2150" />
+        <di:waypoint x="2490" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lu7ulv_di" bpmnElement="Flow_1lu7ulv">
+        <di:waypoint x="2590" y="2150" />
+        <di:waypoint x="2630" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_111fmnd_di" bpmnElement="Flow_111fmnd">
+        <di:waypoint x="2730" y="2150" />
+        <di:waypoint x="2780" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19rzzgc_di" bpmnElement="Flow_19rzzgc">
+        <di:waypoint x="2880" y="2150" />
+        <di:waypoint x="2922" y="2150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_0s4pw72_di" bpmnElement="Participant_0s4pw72" isHorizontal="true">
+        <dc:Bounds x="160" y="922" width="2955" height="680" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1pm715o_di" bpmnElement="Lane_1pm715o" isHorizontal="true">
+        <dc:Bounds x="190" y="922" width="2925" height="335" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1y1aws6_di" bpmnElement="Lane_1y1aws6" isHorizontal="true">
+        <dc:Bounds x="190" y="1257" width="2925" height="345" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_14t52cj_di" bpmnElement="startEventRestaurant">
+        <dc:Bounds x="262" y="1412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="305" y="1420" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0njasx9_di" bpmnElement="loadOrderItems">
+        <dc:Bounds x="230" y="1040" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cgej9n_di" bpmnElement="commitOrderByRest">
+        <dc:Bounds x="430" y="1390" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1jgj6s5_di" bpmnElement="Gateway_1jgj6s5" isMarkerVisible="true">
+        <dc:Bounds x="595" y="1055" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="576" y="1025" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cped91_di" bpmnElement="rejectOrderByRest">
+        <dc:Bounds x="710" y="1140" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qphdvv_di" bpmnElement="endEventCancelByRestauranta">
+        <dc:Bounds x="892" y="1162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="874" y="1205" width="74" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fjszxk_di" bpmnElement="confirmOrderByRest">
+        <dc:Bounds x="860" y="960" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gciwa1_di" bpmnElement="markOrderReadyForm">
+        <dc:Bounds x="1020" y="1390" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ww2ee0_di" bpmnElement="courierNotification">
+        <dc:Bounds x="1230" y="960" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_181y3ai_di" bpmnElement="endEventRestauranta">
+        <dc:Bounds x="1412" y="982" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1389" y="1028" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xwkpj5_di" bpmnElement="markOrderReady">
+        <dc:Bounds x="1020" y="960" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0iny2l0_di" bpmnElement="Flow_0iny2l0">
+        <di:waypoint x="280" y="1412" />
+        <di:waypoint x="280" y="1120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b0kpax_di" bpmnElement="Flow_1b0kpax">
+        <di:waypoint x="330" y="1080" />
+        <di:waypoint x="480" y="1080" />
+        <di:waypoint x="480" y="1390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kcd1g3_di" bpmnElement="Flow_1kcd1g3">
+        <di:waypoint x="530" y="1430" />
+        <di:waypoint x="620" y="1430" />
+        <di:waypoint x="620" y="1105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wipqap_di" bpmnElement="Flow_1wipqap">
+        <di:waypoint x="645" y="1080" />
+        <di:waypoint x="670" y="1080" />
+        <di:waypoint x="670" y="1000" />
+        <di:waypoint x="860" y="1000" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="625" y="973" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h53ejx_di" bpmnElement="Flow_0h53ejx">
+        <di:waypoint x="645" y="1080" />
+        <di:waypoint x="670" y="1080" />
+        <di:waypoint x="670" y="1180" />
+        <di:waypoint x="710" y="1180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="645" y="1193" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1iuo9xz_di" bpmnElement="Flow_1iuo9xz">
+        <di:waypoint x="810" y="1180" />
+        <di:waypoint x="892" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mfp9f2_di" bpmnElement="Flow_1mfp9f2">
+        <di:waypoint x="960" y="1000" />
+        <di:waypoint x="990" y="1000" />
+        <di:waypoint x="990" y="1430" />
+        <di:waypoint x="1020" y="1430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_061lnjn_di" bpmnElement="Flow_061lnjn">
+        <di:waypoint x="1330" y="1000" />
+        <di:waypoint x="1412" y="1000" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yoiqm7_di" bpmnElement="Flow_0yoiqm7">
+        <di:waypoint x="1070" y="1390" />
+        <di:waypoint x="1070" y="1040" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0m10nhe_di" bpmnElement="Flow_0m10nhe">
+        <di:waypoint x="1120" y="1000" />
+        <di:waypoint x="1230" y="1000" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_08f8duu_di" bpmnElement="Participant_08f8duu" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2960" height="610" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_07p8y8w_di" bpmnElement="Lane_07p8y8w" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="2930" height="305" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_01xfwbb_di" bpmnElement="Lane_01xfwbb" isHorizontal="true">
+        <dc:Bounds x="190" y="385" width="2930" height="305" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0wnv8yd_di" bpmnElement="startEventCourier">
+        <dc:Bounds x="242" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="232" y="160" width="61" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_056s353_di" bpmnElement="selectBestCourier">
+        <dc:Bounds x="340" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1agjkxc_di" bpmnElement="reserveCourier">
+        <dc:Bounds x="480" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19ehww5_di" bpmnElement="assignCourierToOrder">
+        <dc:Bounds x="620" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jw1m2y_di" bpmnElement="prepareCourierData">
+        <dc:Bounds x="760" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pl8sx6_di" bpmnElement="courierOneForm">
+        <dc:Bounds x="760" y="510" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y67o2q_di" bpmnElement="pickUpOrder">
+        <dc:Bounds x="900" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0pxefeb" bpmnElement="Activity_1e0aeas">
+        <dc:Bounds x="900" y="510" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_03e2owg" bpmnElement="deliverOrder">
+        <dc:Bounds x="1040" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1jlacir_di" bpmnElement="endEventCourier">
+        <dc:Bounds x="1272" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260" y="255" width="61" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0mtopwh_di" bpmnElement="Flow_0mtopwh">
+        <di:waypoint x="278" y="230" />
+        <di:waypoint x="340" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0opoaf3_di" bpmnElement="Flow_0opoaf3">
+        <di:waypoint x="440" y="230" />
+        <di:waypoint x="480" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="418" y="212" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0sn3v02_di" bpmnElement="Flow_0sn3v02">
+        <di:waypoint x="580" y="230" />
+        <di:waypoint x="620" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h1gjul_di" bpmnElement="Flow_0h1gjul">
+        <di:waypoint x="720" y="230" />
+        <di:waypoint x="760" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fo1eeo_di" bpmnElement="Flow_0fo1eeo">
+        <di:waypoint x="810" y="270" />
+        <di:waypoint x="810" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12hn9am_di" bpmnElement="Flow_12hn9am">
+        <di:waypoint x="860" y="550" />
+        <di:waypoint x="880" y="550" />
+        <di:waypoint x="880" y="230" />
+        <di:waypoint x="900" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l6zxdu_di" bpmnElement="Flow_0l6zxdu">
+        <di:waypoint x="950" y="270" />
+        <di:waypoint x="950" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_060tsth_di" bpmnElement="Flow_060tsth">
+        <di:waypoint x="1000" y="550" />
+        <di:waypoint x="1020" y="550" />
+        <di:waypoint x="1020" y="230" />
+        <di:waypoint x="1040" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xc94q6_di" bpmnElement="Flow_1xc94q6">
+        <di:waypoint x="1140" y="230" />
+        <di:waypoint x="1272" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d6hh6q_di" bpmnElement="Flow_1d6hh6q">
+        <di:waypoint x="2830" y="2110" />
+        <di:waypoint x="2830" y="1720" />
+        <di:waypoint x="280" y="1720" />
+        <di:waypoint x="280" y="1448" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jha92h_di" bpmnElement="Flow_0jha92h">
+        <di:waypoint x="1280" y="960" />
+        <di:waypoint x="1280" y="750" />
+        <di:waypoint x="260" y="750" />
+        <di:waypoint x="260" y="248" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

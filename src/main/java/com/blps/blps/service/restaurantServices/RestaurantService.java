@@ -65,7 +65,7 @@ public class RestaurantService {
         order.setStatus(OrderStatus.READY);
         orderService.save(order);
 
-        courierAssignmentService.assignCourierToReadyOrder(orderId);
+//        courierAssignmentService.assignCourierToReadyOrder(orderId);
 
         return new RestaurantOrCourierOrderActionResponse(order.getId(), order.getStatus().name(), "Заказ готов, курьер назначен");
     }

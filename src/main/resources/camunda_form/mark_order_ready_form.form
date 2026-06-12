@@ -1,0 +1,67 @@
+{
+  "components": [
+    {
+      "text": "# Заказ готов",
+      "type": "text",
+      "layout": {
+        "row": "Row_1eo7wkn",
+        "columns": null
+      },
+      "id": "Field_1anbeml"
+    },
+    {
+      "text": "<p>Пожалуйста, проверьте состав заказа и подтвердите готовность.</p>",
+      "type": "text",
+      "layout": {
+        "row": "Row_07tiqfx",
+        "columns": null
+      },
+      "id": "Field_0xjifa5"
+    },
+    {
+      "type": "table",
+      "layout": {
+        "row": "Row_1b6lzy1",
+        "columns": null
+      },
+      "label": "Позиции заказа",
+      "rowCount": 10,
+      "columns": [
+        {
+          "label": "Блюдо",
+          "key": "product_name"
+        },
+        {
+          "label": "Количество",
+          "key": "quantity"
+        },
+        {
+          "key": "price",
+          "label": "Цена"
+        }
+      ],
+      "id": "Field_1w3w36v",
+      "dataSource": "=restaurant_items"
+    },
+    {
+      "label": "Комментарий к ресторану",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0ylop5m",
+        "columns": null
+      },
+      "id": "Field_0fh3vw8",
+      "key": "restaurant_comment",
+      "readonly": true
+    }
+  ],
+  "type": "default",
+  "id": "mark_order_ready_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}

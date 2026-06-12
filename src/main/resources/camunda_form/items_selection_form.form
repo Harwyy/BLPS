@@ -1,0 +1,107 @@
+{
+  "components": [
+    {
+      "text": "# Оформить заказ",
+      "type": "text",
+      "layout": {
+        "row": "Row_1xwn9t5",
+        "columns": null
+      },
+      "id": "Field_1d3ao0a",
+      "properties": {}
+    },
+    {
+      "label": "Состав заказа",
+      "components": [
+        {
+          "label": "",
+          "components": [
+            {
+              "label": "Блюдо",
+              "type": "select",
+              "layout": {
+                "row": "Row_0q8xy9e",
+                "columns": null
+              },
+              "id": "Field_1qb12et",
+              "key": "productId",
+              "valuesKey": "menu_list"
+            },
+            {
+              "label": "Количество",
+              "type": "number",
+              "layout": {
+                "row": "Row_0q8xy9e",
+                "columns": null
+              },
+              "id": "Field_0hho8d4",
+              "key": "quantity",
+              "validate": {},
+              "decimalDigits": 0
+            }
+          ],
+          "showOutline": false,
+          "type": "group",
+          "layout": {
+            "row": "Row_1s9csvl",
+            "columns": null
+          },
+          "id": "Field_0dzr9z6",
+          "verticalAlignment": "center"
+        }
+      ],
+      "showOutline": true,
+      "isRepeating": true,
+      "allowAddRemove": true,
+      "defaultRepetitions": 1,
+      "type": "dynamiclist",
+      "layout": {
+        "row": "Row_18cx3pa",
+        "columns": null
+      },
+      "id": "Field_1ug6kd4",
+      "path": "items",
+      "verticalAlignment": "center"
+    },
+    {
+      "label": "Комментарий для ресторана",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1g0tkn8",
+        "columns": null
+      },
+      "id": "Field_1b57774",
+      "key": "commentToRestaurant"
+    },
+    {
+      "label": "Комментарий для курьера",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1uhxy2i",
+        "columns": null
+      },
+      "id": "Field_06bwumh",
+      "key": "commentToCourier"
+    },
+    {
+      "label": "Оставить заказ у двери",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_0ej7t9t",
+        "columns": null
+      },
+      "id": "Field_02s5bwt",
+      "key": "leaveAtDoor",
+      "defaultValue": false
+    }
+  ],
+  "type": "default",
+  "id": "create_order_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}

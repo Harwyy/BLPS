@@ -1,0 +1,79 @@
+{
+  "components": [
+    {
+      "text": "# Новый заказ — подтвердите или отклоните",
+      "type": "text",
+      "layout": {
+        "row": "Row_0t2diqn",
+        "columns": null
+      },
+      "id": "Field_1c7b51u"
+    },
+    {
+      "label": "Комментарий клиента к ресторану",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_147ijqp",
+        "columns": null
+      },
+      "id": "Field_0mcv9zk",
+      "key": "restaurant_comment",
+      "disabled": false,
+      "readonly": true
+    },
+    {
+      "type": "table",
+      "layout": {
+        "row": "Row_0f9gn1r",
+        "columns": null
+      },
+      "label": "Позации заказа",
+      "dataSource": "=restaurant_items",
+      "rowCount": 10,
+      "id": "Field_1ystyrs",
+      "columns": [
+        {
+          "label": "Блюдо",
+          "key": "product_name"
+        },
+        {
+          "label": "Количество",
+          "key": "quantity"
+        },
+        {
+          "label": "Цена",
+          "key": "price"
+        }
+      ]
+    },
+    {
+      "label": "Решение ресторана",
+      "values": [
+        {
+          "label": "Подтвердить заказ",
+          "value": "confirm"
+        },
+        {
+          "label": "Отклонить заказ",
+          "value": "reject"
+        }
+      ],
+      "type": "radio",
+      "layout": {
+        "row": "Row_0kbnekx",
+        "columns": null
+      },
+      "id": "Field_1cdojth",
+      "key": "restaurant_decision"
+    }
+  ],
+  "type": "default",
+  "id": "restaurant_decision_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.46.1"
+  },
+  "schemaVersion": 19
+}
